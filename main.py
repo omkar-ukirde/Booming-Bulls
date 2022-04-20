@@ -24,7 +24,7 @@ for name in watchlist:
 
     for index,row in df15.iterrows():
         #Buy
-        if (row['STOCHRSIk_14_14_3_3'] > 80) and (row['low'] < row['vwap'] < row['high']) and status['traded'] is None:
+        if (row['STOCHRSIk_14_14_3_3'] > row['STOCHRSId_14_14_3_3']) and (row['low'] < row['vwap'] < row['high']) and status['traded'] is None:
             trade_no = trade_no + 1
             status['name'] = name
             status['date'] = index.date()
@@ -36,7 +36,7 @@ for name in watchlist:
             status['buysell'] = 'buy'
             status['qty'] = int(capital_per_trade/status['entry_price'])
         #Sell
-        if (row['STOCHRSIk_14_14_3_3'] < 20) and (row['low'] < row['vwap'] < row['high']) and status['traded'] is None:
+        if (row['STOCHRSIk_14_14_3_3'] < row['STOCHRSId_14_14_3_3']) and (row['low'] < row['vwap'] < row['high']) and status['traded'] is None:
             trade_no = trade_no + 1
             status['name'] = name
             status['date'] = index.date()
