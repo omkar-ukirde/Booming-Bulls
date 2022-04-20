@@ -1,6 +1,5 @@
 import pandas as pd
 import pandas_ta as pta
-import talib as ta
 import datetime 
 
 capital_per_trade = 50000
@@ -12,24 +11,20 @@ status = {'name': None, 'date': None, 'time': None, 'entry_price': None, 'stoplo
 final_result = {}
 trade_no = 0
 for name in watchlist:
-    dfday = pd.read_csv(path + '\\' + 'day'+ '\\' + name + '.csv')
-    dfday['pre_close'] = dfday.close.shift(1)
-    dfday['pre_high'] = dfday.high.shift(1)
-    dfday['pre_low'] = dfday.low.shift(1)
-    
-    dfday['PP'] = (dfday['pre_high'] + dfday['pre_low'] + dfday['pre_close']) / 3
-    dfday['R1'] = 2 * dfday['PP'] - dfday['pre_low']
-    dfday['S1'] = 2 * dfday['PP'] - dfday['pre_high']
-    
     df15 = pd.read_csv(path + '\\' + '15min' + '\\' + name + '.csv')
     df15.set_index(pd.DatetimeIndex(df15["date"]), inplace=True)
     df15['vwap'] = pta.vwap(df15['high'], df15['low'], df15['close'], df15['volume'])
-    df15['fastk'], df15['fastd'] = ta.STOCHRSI(df15['close'], timeperiod=14, fastk_period=5, fastd_period=3, fastd_matype=0)
-    df15 = df15['2021-09-21 09:15:00+05:30':]    
+    # STOCHRSIk_14_14_3_3 is blue 
+    # STOCHRSId_14_14_3_3 is red
+    df16= pta.stochrsi(df15['close'])
+    df15 = pd.concat([df15, df16], axis=1)
+
+    #First 20 to drop in case of 15 min.
+    df15 = df15['2021-12-27 14:15:00+05:30':]
 
     for index,row in df15.iterrows():
         #Buy
-        if (row['fastk'] > 80) and (row['low'] < row['vwap'] < row['high']) and status['traded'] is None:
+        if (row['STOCHRSIk_14_14_3_3'] > 80) and (row['low'] < row['vwap'] < row['high']) and status['traded'] is None:
             trade_no = trade_no + 1
             status['name'] = name
             status['date'] = index.date()
@@ -41,7 +36,7 @@ for name in watchlist:
             status['buysell'] = 'buy'
             status['qty'] = int(capital_per_trade/status['entry_price'])
         #Sell
-        if (row['fastk'] < 20) and (row['low'] < row['vwap'] < row['high']) and status['traded'] is None:
+        if (row['STOCHRSIk_14_14_3_3'] < 20) and (row['low'] < row['vwap'] < row['high']) and status['traded'] is None:
             trade_no = trade_no + 1
             status['name'] = name
             status['date'] = index.date()
@@ -79,4 +74,4 @@ for name in watchlist:
                 
                 
 results = pd.DataFrame(final_result).T
-#results.to_csv(path + '\\' + 'final' + '.csv')            
+results.to_csv(path + '\\' + 'final' + '.csv')            
