@@ -31,7 +31,7 @@ for name in watchlist:
             status['time'] = index.time()
             status['entry_price'] = round((row['close'])*0.005,2)/0.005
             status['stoploss'] = round((row['close']*0.99)*0.005,2)/0.005
-            status['target'] = round((row['close']*1.002)*0.005,2)/0.005
+            status['target'] = round((row['close']*1.02)*0.005,2)/0.005
             status['traded'] = 'yes'
             status['buysell'] = 'buy'
             status['qty'] = int(capital_per_trade/status['entry_price'])
